@@ -1,0 +1,16 @@
+# Q-classification 用户自定义分类配置（本文件由题库使用方维护，不影响内置框架）
+# 深圳二调（2026）导入时自动登记的自定义项：
+
+question_types:
+  add:
+    - name: 结构不良题
+      parent: 解答题
+      source: custom
+      note: 题目给出若干条件，要求选取部分条件并完成证明/求解（如第 17 题第 2 问）
+
+knowledge_tags:
+  add: []
+
+framework:
+  chapter_alias: []
+  move_knowledge_point: []

@@ -1,0 +1,67 @@
+# Q-classification —— OpenAI 平台部署描述文件
+#
+# 用于将本 Skill 配置为 OpenAI Assistant（Assistants API）或 OpenAI Agents SDK 中的 Agent。
+# 各字段为可直接映射的部署参数；按实际账号修改 model、temperature 与工具开关。
+# 指令正文与知识框架不在此重复，运行时按相对路径加载。
+
+version: "1.0"
+
+agent:
+  name: Q-classification
+  description: >-
+    小初高数学题库智能分类管理 Agent：解析 Word/PDF/图片中的数学题目（文字提取、公式转
+    LaTeX/MathType、图形识别重绘），按教材章节、题型、知识点考点三维自动分类、去重归档、
+    增量更新、检索与批量导出。适配小学/初中人教版与北师大版、高中人教版与湘教版。
+
+  # 运行时加载的指令与知识资源（相对于本文件所在目录）
+  instructions: ../SKILL.md
+  resources:
+    - ../references/knowledge-framework.md
+
+  model: gpt-4o
+  temperature: 0.2
+  reasoning_effort: medium
+
+  tools:
+    - type: file_search          # 检索题库记录与知识框架
+    - type: code_interpreter     # 解析 DOCX/PDF、公式转换、图形重绘、生成导出文件
+
+  tool_resources:
+    file_search:
+      vector_stores:
+        - name: q-classification-framework
+          files:
+            - ../references/knowledge-framework.md
+    code_interpreter:
+      files:
+        - ../SKILL.md
+
+  metadata:
+    category: education
+    subject: mathematics
+    license: MIT
+    tags:
+      - question-bank
+      - classification
+      - latex
+      - k12
+
+# 输入输出约定（供部署与校验使用）
+io:
+  inputs:
+    - name: question_files
+      formats: [.docx, .pdf, .png, .jpg, .jpeg]
+      description: 数学试卷、练习题、真题、模拟题或题目截图，支持批量上传
+    - name: user_options
+      formats: [.yaml, .json]
+      description: 默认教材版本、年级、筛选条件、导出格式等可选项
+  outputs:
+    - name: question_records
+      formats: [.jsonl]
+      description: 结构化题目记录，含三维分类标签与置信度
+    - name: question_library
+      formats: [directory]
+      description: 层级化题库（索引、重绘图形、自定义分类配置）
+    - name: exports
+      formats: [.docx, .pdf, .md, .tex, .xlsx]
+      description: 按教材/章节/知识点/题型筛选导出的题目文档与清单
